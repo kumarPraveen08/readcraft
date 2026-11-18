@@ -2,9 +2,15 @@
 
 **Your README, looking finished before you finish writing it.**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-c03f13?style=for-the-badge)](https://kumarpraveen08.github.io/readcraft/)
+[![Markdown](https://img.shields.io/badge/Markdown-Editor-1d1d1b?style=for-the-badge)](https://kumarpraveen08.github.io/readcraft/)
+[![PDF Export](https://img.shields.io/badge/Export-PDF%20%7C%20MD%20%7C%20HTML-69645f?style=for-the-badge)](https://kumarpraveen08.github.io/readcraft/)
+
 Open it. Type a heading. Watch the page appear on the right like someone already designed it. That’s the whole idea — no “export and hope,” no waiting until the end to find out it looks wrong.
 
-ReadCraft is a small studio for Markdown docs. Words on the left. A real preview on the right. Themes, sections, math, PDF — when you need them, not before.
+ReadCraft is a free online Markdown README editor with live preview. Words on the left. A real preview on the right. Themes, section templates, math, and PDF export show up when you need them — not before. Built for people writing GitHub READMEs, project docs, and technical notes.
+
+**Try it live:** [https://kumarpraveen08.github.io/readcraft/](https://kumarpraveen08.github.io/readcraft/)
 
 ---
 
@@ -28,8 +34,14 @@ It’s the difference between decorating a room with the lights off and decorati
 | **Math that looks like math** | Equations for papers and technical docs, in the preview and in the PDF. |
 | **Looks you can switch** | Parchment, ink dark, GitHub light/dark, bold yellow, cool slate — plus fonts that feel intentional. |
 | **Quiet autosave** | Your work stays in the browser. Rename files. Keep a short shelf of recent READMEs. |
-| **Take it anywhere** | Copy Markdown, or download `.md`, PDF, HTML, text, or JSON. PDF shows a progress bar so you’re never guessing. |
-| **Your templates** | Loved a README you built? Save it once. Reuse it forever. |
+| **Take it with you** | Copy Markdown, or download `.md`, PDF, HTML, text, or JSON. PDF shows a progress bar so you’re never guessing. |
+| **Templates of your own** | Loved a README you built? Save it once. Reuse it forever. |
+
+---
+
+## Who it’s for
+
+Anyone who writes READMEs, project docs, or notes in Markdown — and wants the finished page in front of them while they write, not after. If you’ve ever needed a live preview while drafting, or a clean PDF of your docs without wrestling another app, this is that tool.
 
 ---
 
@@ -41,6 +53,8 @@ npm run dev
 ```
 
 Open the local link, type `# Hello`, and watch the preview answer back.
+
+Or skip setup and open the **[live demo](https://kumarpraveen08.github.io/readcraft/)**.
 
 ---
 

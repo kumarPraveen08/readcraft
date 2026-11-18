@@ -1,0 +1,26 @@
+{
+  "name": "ReadCraft — Markdown README Editor",
+  "short_name": "ReadCraft",
+  "description": "Write README and Markdown docs with a live preview, themes, math, section templates, and PDF export.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e2dedb",
+  "theme_color": "#1d1d1b",
+  "lang": "en",
+  "categories": ["productivity", "developer tools", "utilities"],
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

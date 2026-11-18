@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kumarpraveen08.github.io/readcraft/sitemap.xml
