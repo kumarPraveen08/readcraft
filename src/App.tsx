@@ -359,9 +359,17 @@ export default function App() {
   const isFreeFormMode = activeNav === "freeform";
   const liveEditorText = editorDraft;
 
-  const previewSource = useDebouncedValue(liveEditorText, 280);
+  // Preview/export always show the full doc; section mode only edits one slice.
+  const liveDocumentText = useMemo(() => {
+    if (isFreeFormMode) return editorDraft;
+    return (currentDoc?.sections || [])
+      .map((s) => (s.id === activeSection?.id ? editorDraft : s.markdown))
+      .join("\n\n");
+  }, [isFreeFormMode, editorDraft, currentDoc?.sections, activeSection?.id]);
+
+  const previewSource = useDebouncedValue(liveDocumentText, 280);
   const deferredPreviewMd = useDeferredValue(previewSource);
-  const previewStale = deferredPreviewMd !== liveEditorText;
+  const previewStale = deferredPreviewMd !== liveDocumentText;
 
   const lineCount = useMemo(() => {
     const t = liveEditorText || "";
@@ -603,7 +611,7 @@ export default function App() {
     showToast(`Inserted ${label}`);
   };
 
-  const fullMarkdown = isFreeFormMode ? editorDraft : committedMarkdown;
+  const fullMarkdown = liveDocumentText;
 
   const handleAddSection = (tpl) => {
     const newSec = {
