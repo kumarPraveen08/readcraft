@@ -29,7 +29,6 @@ function MarkdownPreview({
   darkPreview,
   fontPreset = FONT_PRESETS[0],
   compact = false,
-  stale = false,
   resetKey = null,
 }) {
   const [lineCap, setLineCap] = useState(PREVIEW_LINE_STEP);
@@ -77,24 +76,12 @@ function MarkdownPreview({
 
   return (
     <div
-      className={`border p-4 sm:p-7 space-y-4 leading-relaxed ${fontPreset.bodyClass} transition-opacity shadow-[-4px_4px_6px_0px_rgba(29,29,27,0.15)] ${
+      className={`border p-4 sm:p-7 space-y-4 leading-relaxed ${fontPreset.bodyClass} shadow-[-4px_4px_6px_0px_rgba(29,29,27,0.15)] ${
         darkPreview
           ? "bg-[#1d1d1b] border-[#69645f]/50 text-[#e2dedb]"
           : "bg-[#e2dedb] border-[#1d1d1b]/30 text-[#1d1d1b]"
-      } ${stale ? "opacity-60" : "opacity-100"}`}
+      }`}
     >
-      {stale && (
-        <div
-          className={`text-[11px] px-2.5 py-1.5 border ${
-            darkPreview
-              ? "border-[#69645f]/50 bg-[#272624]"
-              : "border-[#1d1d1b]/20 bg-[#cdc6be]"
-          }`}
-        >
-          Updating preview…
-        </div>
-      )}
-
       {blocks.map((b, i) => {
         const align = b.center ? "text-center" : "";
         if (b.type === "latexPreamble") {

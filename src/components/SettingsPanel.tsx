@@ -11,19 +11,33 @@ import {
 import { THEME_PRESETS } from "../data/themes";
 import { FONT_PRESETS } from "../data/fonts";
 
+const PDF_MARGIN_PRESETS = [
+  { id: "narrow", label: "Narrow", pt: 36 },
+  { id: "normal", label: "Normal", pt: 48 },
+  { id: "wide", label: "Wide", pt: 72 },
+];
+
 export function SettingsPanel({
   themeId,
   fontId,
   editorFontSize,
+  pdfMarginPt,
   activeTheme,
   onThemeChange,
   onFontChange,
   onFontSizeChange,
+  onPdfMarginChange,
 }) {
   const [themeQuery, setThemeQuery] = useState("");
   const [tone, setTone] = useState("all"); // all | light | dark
   const [themeOpen, setThemeOpen] = useState(false);
   const [typefaceOpen, setTypefaceOpen] = useState(false);
+  const [editorSizeOpen, setEditorSizeOpen] = useState(false);
+  const [pdfMarginOpen, setPdfMarginOpen] = useState(false);
+
+  const pdfMarginLabel =
+    PDF_MARGIN_PRESETS.find((p) => p.pt === pdfMarginPt)?.label ||
+    `${pdfMarginPt}pt`;
 
   const activeFont = useMemo(
     () => FONT_PRESETS.find((f) => f.id === fontId) || FONT_PRESETS[0],
@@ -219,25 +233,90 @@ export function SettingsPanel({
       </section>
 
       <section className={`space-y-2 pt-1 border-t ${activeTheme.borderRule}`}>
-        <div className="text-xs font-semibold tracking-wide uppercase opacity-80">
-          Editor size
-        </div>
-        <div className="grid grid-cols-4 gap-1">
-          {[12, 14, 16, 18].map((sz) => (
-            <button
-              key={sz}
-              type="button"
-              onClick={() => onFontSizeChange(sz)}
-              className={`py-1.5 rounded-[2.88px] border text-xs ${
-                editorFontSize === sz
-                  ? `${activeTheme.activeItem} border-transparent`
-                  : `${activeTheme.cardBg} ${activeTheme.borderRule}`
-              }`}
-            >
-              {sz}
-            </button>
-          ))}
-        </div>
+        <button
+          type="button"
+          onClick={() => setEditorSizeOpen((o) => !o)}
+          aria-expanded={editorSizeOpen}
+          className="w-full flex items-center justify-between gap-2 text-left"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase opacity-80 min-w-0">
+            <span>Editor size</span>
+            {!editorSizeOpen && (
+              <span
+                className={`normal-case tracking-normal font-medium truncate ${activeTheme.mutedText}`}
+              >
+                · {editorFontSize}px
+              </span>
+            )}
+          </div>
+          <ChevronDown
+            className={`w-3.5 h-3.5 shrink-0 opacity-60 transition-transform ${editorSizeOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {editorSizeOpen && (
+          <div className="grid grid-cols-4 gap-1">
+            {[12, 14, 16, 18].map((sz) => (
+              <button
+                key={sz}
+                type="button"
+                onClick={() => onFontSizeChange(sz)}
+                className={`py-1.5 rounded-[2.88px] border text-xs ${
+                  editorFontSize === sz
+                    ? `${activeTheme.activeItem} border-transparent`
+                    : `${activeTheme.cardBg} ${activeTheme.borderRule}`
+                }`}
+              >
+                {sz}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className={`space-y-2 pt-1 border-t ${activeTheme.borderRule}`}>
+        <button
+          type="button"
+          onClick={() => setPdfMarginOpen((o) => !o)}
+          aria-expanded={pdfMarginOpen}
+          className="w-full flex items-center justify-between gap-2 text-left"
+        >
+          <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase opacity-80 min-w-0">
+            <span>PDF margin</span>
+            {!pdfMarginOpen && (
+              <span
+                className={`normal-case tracking-normal font-medium truncate ${activeTheme.mutedText}`}
+              >
+                · {pdfMarginLabel}
+              </span>
+            )}
+          </div>
+          <ChevronDown
+            className={`w-3.5 h-3.5 shrink-0 opacity-60 transition-transform ${pdfMarginOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {pdfMarginOpen && (
+          <>
+            <div className="grid grid-cols-3 gap-1">
+              {PDF_MARGIN_PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => onPdfMarginChange(p.pt)}
+                  className={`py-1.5 rounded-[2.88px] border text-xs ${
+                    pdfMarginPt === p.pt
+                      ? `${activeTheme.activeItem} border-transparent`
+                      : `${activeTheme.cardBg} ${activeTheme.borderRule}`
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <p className={`text-[10px] ${activeTheme.mutedText}`}>
+              {pdfMarginPt}pt on each side when exporting PDF
+            </p>
+          </>
+        )}
       </section>
     </div>
   );

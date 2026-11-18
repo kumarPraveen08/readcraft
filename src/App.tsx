@@ -110,6 +110,14 @@ export default function App() {
   });
 
   const [editorFontSize, setEditorFontSize] = useState(14);
+  const [pdfMarginPt, setPdfMarginPt] = useState(() => {
+    try {
+      const n = Number(localStorage.getItem("readcraft_pdf_margin_pt_v6"));
+      return Number.isFinite(n) && n >= 24 && n <= 96 ? n : 48;
+    } catch {
+      return 48;
+    }
+  });
 
   const activeTheme = useMemo(
     () => THEME_PRESETS.find((t) => t.id === themeId) || THEME_PRESETS[0],
@@ -130,6 +138,10 @@ export default function App() {
   useEffect(() => {
     safeLocalStorageSet("readcraft_font_id_v6", fontId);
   }, [fontId]);
+
+  useEffect(() => {
+    safeLocalStorageSet("readcraft_pdf_margin_pt_v6", String(pdfMarginPt));
+  }, [pdfMarginPt]);
 
   // Custom User-Created Section Library Items
   const [customLibrarySections, setCustomLibrarySections] = useState(() => {
@@ -372,9 +384,8 @@ export default function App() {
       .join("\n\n");
   }, [isFreeFormMode, editorDraft, currentDoc?.sections, activeSection?.id]);
 
-  const previewSource = useDebouncedValue(liveDocumentText, 280);
-  const deferredPreviewMd = useDeferredValue(previewSource);
-  const previewStale = deferredPreviewMd !== liveDocumentText;
+  // Defer heavy parse so typing stays smooth; never flash a "loading" state.
+  const deferredPreviewMd = useDeferredValue(liveDocumentText);
 
   const lineCount = useMemo(() => {
     const t = liveEditorText || "";
@@ -907,6 +918,7 @@ export default function App() {
           md,
           {
             signal: ac.signal,
+            marginPt: pdfMarginPt,
             onProgress: (progress, label) =>
               setPdfJob({ progress, label: label || "Working…" }),
           },
@@ -1667,6 +1679,7 @@ export default function App() {
                   themeId={themeId}
                   fontId={fontId}
                   editorFontSize={editorFontSize}
+                  pdfMarginPt={pdfMarginPt}
                   activeTheme={activeTheme}
                   onThemeChange={(th) => {
                     setThemeId(th.id);
@@ -1674,6 +1687,7 @@ export default function App() {
                   }}
                   onFontChange={setFontId}
                   onFontSizeChange={setEditorFontSize}
+                  onPdfMarginChange={setPdfMarginPt}
                 />
               )}
             </div>
@@ -1838,7 +1852,6 @@ export default function App() {
                   markdown={deferredPreviewMd}
                   darkPreview={darkPreview}
                   fontPreset={activeFont}
-                  stale={previewStale}
                   resetKey={currentDoc?.id}
                 />
               </div>

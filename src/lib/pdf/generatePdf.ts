@@ -539,6 +539,8 @@ async function generateHighResPdfWithLatex(
   options: {
     onProgress?: (progress: number, label?: string) => void;
     signal?: AbortSignal;
+    /** Page margin in PDF points (1/72"). Clamped 24–96. */
+    marginPt?: number;
   } = {},
 ) {
   const { onProgress, signal } = options;
@@ -553,7 +555,11 @@ async function generateHighResPdfWithLatex(
   const SCALE = 2;
   const PT_W = 612;
   const PT_H = 792;
-  const MARGIN = 32;
+  const rawMargin = Number(options.marginPt);
+  const MARGIN = Math.min(
+    96,
+    Math.max(24, Number.isFinite(rawMargin) ? rawMargin : 48),
+  );
   const CONTENT_W = PT_W - MARGIN * 2;
 
   // Encode each finished page to JPEG immediately so page count can grow with the MD file
