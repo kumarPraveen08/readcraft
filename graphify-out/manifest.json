@@ -1,0 +1,167 @@
+{
+  ".oxlintrc.json": {
+    "mtime": 1794991101.1389353,
+    "ast_hash": "029f4905006c1fffd96bc863e2d98d3e",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1794992722.7984514,
+    "ast_hash": "71223a0b629ee037a820c43fb1b26b21",
+    "semantic_hash": ""
+  },
+  "scripts/check-md-fences.mjs": {
+    "mtime": 1794991903.454282,
+    "ast_hash": "902515ab9dbf43417a2bc1c776aab356",
+    "semantic_hash": ""
+  },
+  "src/App.tsx": {
+    "mtime": 1794993494.548021,
+    "ast_hash": "1f39f1fa8bb2ea309d7885d91e1a9a08",
+    "semantic_hash": ""
+  },
+  "src/components/MarkdownPreview.tsx": {
+    "mtime": 1794992825.1287463,
+    "ast_hash": "54cf633574b5886a207ccd746b96eec4",
+    "semantic_hash": ""
+  },
+  "src/components/MathFormula.tsx": {
+    "mtime": 1794991939.2907567,
+    "ast_hash": "e3d5de94868195b76ae460c90e3cc157",
+    "semantic_hash": ""
+  },
+  "src/data/fonts.ts": {
+    "mtime": 1794991814.16763,
+    "ast_hash": "b2aaf2c1110d415fccc431efc66bcb95",
+    "semantic_hash": ""
+  },
+  "src/data/sectionLibrary.ts": {
+    "mtime": 1794991814.1668444,
+    "ast_hash": "49f99ba6a3dbba0096a36c07c2d2c2f8",
+    "semantic_hash": ""
+  },
+  "src/data/themes.ts": {
+    "mtime": 1794991814.1672626,
+    "ast_hash": "0f44caf1cb2c7cd430df7e1ec2b469b7",
+    "semantic_hash": ""
+  },
+  "src/lib/latex/parse.ts": {
+    "mtime": 1794991778.463317,
+    "ast_hash": "6249e17de48bd7a548b503c9f595d641",
+    "semantic_hash": ""
+  },
+  "src/lib/latex/render.tsx": {
+    "mtime": 1794991940.0052328,
+    "ast_hash": "1da29958984568b5c768ed06062becfa",
+    "semantic_hash": ""
+  },
+  "src/lib/latex/symbols.ts": {
+    "mtime": 1794991814.1681805,
+    "ast_hash": "cd0c2a747a77e7b6559921962c69db85",
+    "semantic_hash": ""
+  },
+  "src/lib/markdown/inline.tsx": {
+    "mtime": 1794991940.5493987,
+    "ast_hash": "a277a01bd390ebde28f36bc08edf74ce",
+    "semantic_hash": ""
+  },
+  "src/lib/markdown/parse.ts": {
+    "mtime": 1794991778.4664502,
+    "ast_hash": "f6189b9bb0d90b2fe2ff750f9518270c",
+    "semantic_hash": ""
+  },
+  "src/lib/pdf/generatePdf.ts": {
+    "mtime": 1794993482.5787902,
+    "ast_hash": "eede4a403d17b603ee84e2a33f032c26",
+    "semantic_hash": ""
+  },
+  "src/main.tsx": {
+    "mtime": 1794991101.1458066,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": ""
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1794991856.1284125,
+    "ast_hash": "ef7864fb4fff0810eb0a1448f8e4b90c",
+    "semantic_hash": ""
+  },
+  "tsconfig.app.json": {
+    "mtime": 1794991937.5312538,
+    "ast_hash": "2d15002b0db4c46c67805c6dc0c215db",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1794991101.1466115,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": ""
+  },
+  "tsconfig.node.json": {
+    "mtime": 1794991101.1471012,
+    "ast_hash": "f9cb81ddcea69ffdab672fc8c48dca66",
+    "semantic_hash": ""
+  },
+  "vite.config.ts": {
+    "mtime": 1794992722.4293945,
+    "ast_hash": "82db42c7dc2470ed34e03be991dacdd6",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1794991101.1380005,
+    "ast_hash": "10495bfcc6c568eca4dab6dd5df795d3",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1794992724.0022497,
+    "ast_hash": "91a3ad8cec34407d07f1ef5f2e94b6e0",
+    "semantic_hash": ""
+  },
+  "public/favicon.svg": {
+    "mtime": 1794991101.1409814,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "public/icons.svg": {
+    "mtime": 1794991101.1420639,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": ""
+  },
+  "src/assets/hero.png": {
+    "mtime": 1794991101.1439586,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "src/assets/react.svg": {
+    "mtime": 1794991101.1444337,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "src/assets/vite.svg": {
+    "mtime": 1794991101.1449056,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "src/components/SettingsPanel.tsx": {
+    "mtime": 1794992485.9441428,
+    "ast_hash": "d4c87ccab2d8101020d76d6bcb7afd10",
+    "semantic_hash": ""
+  },
+  "src/hooks/useDebouncedValue.ts": {
+    "mtime": 1794992475.8348386,
+    "ast_hash": "fe003cda886d7452cbc9e9ab3907602c",
+    "semantic_hash": ""
+  },
+  "src/lib/perf.ts": {
+    "mtime": 1794992474.6546235,
+    "ast_hash": "fcdd01d9c59281bdaa2679a03b795c4b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/deploy-pages.yml": {
+    "mtime": 1794992742.9902203,
+    "ast_hash": "f91a90712fe44e9c3c0b9435168d2663",
+    "semantic_hash": ""
+  },
+  "scripts/check-huge-select.mjs": {
+    "mtime": 1794993504.9313138,
+    "ast_hash": "bbc9b26c187ee221cf9294b2f70c2887",
+    "semantic_hash": ""
+  }
+}
