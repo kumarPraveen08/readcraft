@@ -36,6 +36,16 @@ body {
   font-weight: 500;
 }
 
+/* Find match selection — visible while navigating Enter / next / prev */
+.editor-find-active::selection {
+  background: #c03f13;
+  color: #e2dedb;
+}
+.editor-find-active::-moz-selection {
+  background: #c03f13;
+  color: #e2dedb;
+}
+
 .font-cabinet {
   font-family: var(--font-cabinet);
   font-weight: 800;

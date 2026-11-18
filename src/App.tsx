@@ -44,6 +44,7 @@ import { THEME_PRESETS } from "./data/themes";
 import { FONT_PRESETS } from "./data/fonts";
 import { MarkdownPreview } from "./components/MarkdownPreview";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { EditorFindBar } from "./components/EditorFindBar";
 import { generateHighResPdfWithLatex } from "./lib/pdf/generatePdf";
 import { safeLocalStorageSet } from "./lib/perf";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
@@ -207,6 +208,10 @@ export default function App() {
   const pdfAbortRef = useRef(null);
   // Native Ctrl+A on huge textareas freezes the browser; use logical select instead.
   const [editorAllSelected, setEditorAllSelected] = useState(false);
+  const [findOpen, setFindOpen] = useState(false);
+  const [findPreferReplace, setFindPreferReplace] = useState(false);
+  const editorTaRef = useRef(null);
+  const findNavRef = useRef(null);
   const [isFileDragOver, setIsFileDragOver] = useState(false);
   const fileDragDepthRef = useRef(0);
   const HUGE_EDITOR_CHARS = 50000;
@@ -458,10 +463,47 @@ export default function App() {
     }
   };
 
+  const openFind = (withReplace = false) => {
+    setFindPreferReplace(withReplace);
+    setFindOpen(true);
+  };
+
+  // Cmd/Ctrl+F|H even when focus isn't in the textarea
+  useEffect(() => {
+    if (viewMode !== "split" && viewMode !== "editor") return;
+    const onKey = (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+      const k = e.key.toLowerCase();
+      if (!mod) return;
+      if (k === "f") {
+        e.preventDefault();
+        openFind(false);
+      } else if (k === "h") {
+        e.preventDefault();
+        openFind(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewMode]);
+
   const handleEditorKeyDown = (e) => {
     const mod = e.metaKey || e.ctrlKey;
     const huge = (editorDraft?.length || 0) >= HUGE_EDITOR_CHARS;
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+    if (e.key === "Escape" && findOpen) {
+      e.preventDefault();
+      setFindOpen(false);
+      return;
+    }
+
+    // Keep stepping matches while the editor holds focus (for visible highlight)
+    if (findOpen && (e.key === "Enter" || e.key === "F3")) {
+      e.preventDefault();
+      findNavRef.current?.go(e.shiftKey ? -1 : 1);
+      return;
+    }
 
     if (mod && key === "a") {
       if (!huge) return;
@@ -1664,7 +1706,7 @@ export default function App() {
               style={{
                 width: viewMode === "split" ? `${editorWidthPct}%` : "100%",
               }}
-              className={`flex flex-col min-w-0 max-md:!w-full overflow-hidden ${
+              className={`relative flex flex-col min-w-0 max-md:!w-full overflow-hidden ${
                 viewMode === "split" ? "h-1/2 md:h-full" : "h-full"
               } ${activeTheme.editorSurface}`}
             >
@@ -1676,11 +1718,21 @@ export default function App() {
                     ? `Free-Form Editor — ${currentDoc?.title}`
                     : `Section: ${activeSection?.name || "Editor"}`}
                 </span>
-                <span
-                  className={`text-[10px] font-mono ${activeTheme.mutedText}`}
-                >
-                  {lineCount.toLocaleString()} lines
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    title="Find (Ctrl/⌘+F)"
+                    onClick={() => openFind(false)}
+                    className={`p-1 rounded-[2.88px] border ${activeTheme.borderRule}`}
+                  >
+                    <Search className="w-3 h-3" />
+                  </button>
+                  <span
+                    className={`text-[10px] font-mono ${activeTheme.mutedText}`}
+                  >
+                    {lineCount.toLocaleString()} lines
+                  </span>
+                </div>
               </div>
               {editorAllSelected && (
                 <div
@@ -1690,18 +1742,38 @@ export default function App() {
                   Ctrl/⌘+C copies without freezing. Click or type to clear.
                 </div>
               )}
-              <textarea
-                value={editorDraft}
-                onChange={(e) => handleEditorChange(e.target.value)}
-                onKeyDown={handleEditorKeyDown}
-                onMouseDown={() => setEditorAllSelected(false)}
-                style={{ fontSize: `${editorFontSize}px` }}
-                placeholder="Write Markdown here… or drop a .md / README file"
-                spellCheck={false}
-                className={`flex-1 w-full p-3.5 sm:p-5 font-mono leading-relaxed focus:outline-none resize-none overflow-y-auto select-text ${activeTheme.editorSurface} ${
-                  editorAllSelected ? "ring-2 ring-inset ring-[#c03f13]/50" : ""
-                }`}
-              />
+              <div className="relative flex-1 min-h-0">
+                <EditorFindBar
+                  open={findOpen}
+                  onClose={() => setFindOpen(false)}
+                  text={editorDraft}
+                  textareaRef={editorTaRef}
+                  preferReplace={findPreferReplace}
+                  activeTheme={activeTheme}
+                  navRef={findNavRef}
+                  onReplace={(next) => {
+                    setEditorAllSelected(false);
+                    handleEditorChange(next);
+                  }}
+                />
+                <textarea
+                  ref={editorTaRef}
+                  value={editorDraft}
+                  onChange={(e) => handleEditorChange(e.target.value)}
+                  onKeyDown={handleEditorKeyDown}
+                  onMouseDown={() => setEditorAllSelected(false)}
+                  style={{ fontSize: `${editorFontSize}px` }}
+                  placeholder="Write Markdown here… or drop a .md / README file"
+                  spellCheck={false}
+                  className={`absolute inset-0 w-full h-full p-3.5 sm:p-5 font-mono leading-relaxed focus:outline-none resize-none overflow-y-auto select-text ${activeTheme.editorSurface} ${
+                    findOpen ? "editor-find-active" : ""
+                  } ${
+                    editorAllSelected
+                      ? "ring-2 ring-inset ring-[#c03f13]/50"
+                      : ""
+                  }`}
+                />
+              </div>
             </div>
           )}
 
