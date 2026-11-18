@@ -207,6 +207,8 @@ export default function App() {
   const pdfAbortRef = useRef(null);
   // Native Ctrl+A on huge textareas freezes the browser; use logical select instead.
   const [editorAllSelected, setEditorAllSelected] = useState(false);
+  const [isFileDragOver, setIsFileDragOver] = useState(false);
+  const fileDragDepthRef = useRef(0);
   const HUGE_EDITOR_CHARS = 50000;
 
   // Debounced persistence — never JSON.stringify huge docs on every keystroke
@@ -519,6 +521,79 @@ export default function App() {
         },
       ],
     }));
+  };
+
+  const isImportableTextFile = (file) => {
+    if (!file) return false;
+    const name = (file.name || "").toLowerCase();
+    if (/\.(md|markdown|txt|mdx)$/.test(name)) return true;
+    return (
+      typeof file.type === "string" &&
+      (file.type === "text/markdown" ||
+        file.type === "text/plain" ||
+        file.type === "text/x-markdown")
+    );
+  };
+
+  const importMarkdownFile = async (file) => {
+    if (!isImportableTextFile(file)) {
+      showToast("Drop a .md, .markdown, or .txt file");
+      return;
+    }
+    try {
+      const text = await file.text();
+      const baseName = (file.name || "README.md").replace(/\.(markdown|mdx|txt)$/i, ".md");
+      const title = /\.md$/i.test(baseName) ? baseName : `${baseName}.md`;
+      setEditorAllSelected(false);
+      setActiveNav("freeform");
+      setDrawerOpen(false);
+      setRenameCurrentVal(title);
+      skipDraftSyncRef.current = true;
+      setEditorDraft(text);
+      updateCurrentDoc((d) => ({
+        ...d,
+        title,
+        sections: [
+          {
+            id: d.sections?.[0]?.id || `sec-freeform-${Date.now()}`,
+            slug: "freeform",
+            name: "Document",
+            markdown: text,
+          },
+        ],
+      }));
+      showToast(`Opened ${file.name}`);
+    } catch {
+      showToast("Could not read that file");
+    }
+  };
+
+  const onWorkspaceDragEnter = (e) => {
+    if (![...e.dataTransfer.types].includes("Files")) return;
+    e.preventDefault();
+    fileDragDepthRef.current += 1;
+    setIsFileDragOver(true);
+  };
+
+  const onWorkspaceDragOver = (e) => {
+    if (![...e.dataTransfer.types].includes("Files")) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const onWorkspaceDragLeave = (e) => {
+    if (![...e.dataTransfer.types].includes("Files")) return;
+    e.preventDefault();
+    fileDragDepthRef.current = Math.max(0, fileDragDepthRef.current - 1);
+    if (fileDragDepthRef.current === 0) setIsFileDragOver(false);
+  };
+
+  const onWorkspaceDrop = (e) => {
+    e.preventDefault();
+    fileDragDepthRef.current = 0;
+    setIsFileDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) importMarkdownFile(file);
   };
 
   const handleInsertFreeFormSnippet = (snippetText, label) => {
@@ -1559,7 +1634,23 @@ export default function App() {
         <main
           ref={splitContainerRef}
           className="flex-1 flex flex-col md:flex-row min-w-0 h-full overflow-hidden relative"
+          onDragEnter={onWorkspaceDragEnter}
+          onDragOver={onWorkspaceDragOver}
+          onDragLeave={onWorkspaceDragLeave}
+          onDrop={onWorkspaceDrop}
         >
+          {isFileDragOver && (
+            <div
+              className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none"
+              aria-hidden
+            >
+              <div
+                className={`mx-4 px-5 py-4 rounded-[2.88px] border-2 border-dashed text-sm font-semibold shadow-lg ${activeTheme.activeItem} border-current`}
+              >
+                Drop README.md to open
+              </div>
+            </div>
+          )}
           {(viewMode === "split" || viewMode === "editor") && (
             <div
               style={{
@@ -1597,7 +1688,7 @@ export default function App() {
                 onKeyDown={handleEditorKeyDown}
                 onMouseDown={() => setEditorAllSelected(false)}
                 style={{ fontSize: `${editorFontSize}px` }}
-                placeholder="Write Markdown & Full LaTeX here..."
+                placeholder="Write Markdown here… or drop a .md / README file"
                 spellCheck={false}
                 className={`flex-1 w-full p-3.5 sm:p-5 font-mono leading-relaxed focus:outline-none resize-none overflow-y-auto select-text ${activeTheme.editorSurface} ${
                   editorAllSelected ? "ring-2 ring-inset ring-[#c03f13]/50" : ""
