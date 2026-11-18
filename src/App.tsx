@@ -45,7 +45,10 @@ import { FONT_PRESETS } from "./data/fonts";
 import { MarkdownPreview } from "./components/MarkdownPreview";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { EditorFindBar } from "./components/EditorFindBar";
-import { generateHighResPdfWithLatex } from "./lib/pdf/generatePdf";
+import {
+  buildPreviewHtmlDocument,
+  downloadPreviewPdf,
+} from "./lib/pdf/previewHtml";
 import { safeLocalStorageSet } from "./lib/perf";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
 
@@ -892,7 +895,11 @@ export default function App() {
         new Blob([md], { type: "text/markdown;charset=utf-8" }),
       );
     } else if (fmt === "html") {
-      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${currentDoc?.title || "README"}</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><style>body{font-family:Georgia,serif;max-width:840px;margin:40px auto;padding:24px;line-height:1.6;background:#e2dedb;color:#1d1d1b}pre{background:#1d1d1b;color:#e2dedb;padding:14px;border:1px solid #000000;overflow:auto}</style></head><body><pre style="white-space:pre-wrap;font-family:inherit">${md.replace(/</g, "&lt;")}</pre></body></html>`;
+      const html = buildPreviewHtmlDocument({
+        title: currentDoc?.title || "README",
+        markdown: md,
+        marginPt: pdfMarginPt,
+      });
       downloadBlob(
         `${baseName}.html`,
         new Blob([html], { type: "text/html;charset=utf-8" }),
@@ -915,23 +922,23 @@ export default function App() {
       if (pdfJob) return;
       const ac = new AbortController();
       pdfAbortRef.current = ac;
-      setPdfJob({ progress: 0, label: "Starting PDF…" });
+      setPdfJob({ progress: 0, label: "Building PDF…" });
       setExportMenuOpen(false);
       try {
-        const result = await generateHighResPdfWithLatex(
-          currentDoc?.title || "README",
-          md,
-          {
-            signal: ac.signal,
-            marginPt: pdfMarginPt,
-            onProgress: (progress, label) =>
-              setPdfJob({ progress, label: label || "Working…" }),
-          },
-        );
+        const result = await downloadPreviewPdf({
+          title: currentDoc?.title || "README",
+          markdown: md,
+          marginPt: pdfMarginPt,
+          filename: `${baseName}.pdf`,
+          signal: ac.signal,
+          onProgress: (progress, label) =>
+            setPdfJob({ progress, label: label || "Working…" }),
+        });
         downloadBlob(`${baseName}.pdf`, result.blob);
-        showToast(`PDF ready (${result.pageCount} pages)`);
+        showToast("PDF downloaded");
       } catch (err) {
-        const name = err && typeof err === "object" && "name" in err ? err.name : "";
+        const name =
+          err && typeof err === "object" && "name" in err ? err.name : "";
         if (name !== "AbortError") {
           showToast("PDF export failed");
           console.error(err);
@@ -1082,7 +1089,7 @@ export default function App() {
 
             {exportMenuOpen && (
               <div
-                className={`absolute right-0 mt-1.5 w-48 border ${activeTheme.borderRule} shadow-xl py-1 z-50 rounded-[2.88px] ${activeTheme.cardBg}`}
+                className={`absolute right-0 mt-1.5 w-52 border ${activeTheme.borderRule} shadow-xl py-1 z-50 rounded-[2.88px] ${activeTheme.cardBg}`}
               >
                 <button
                   type="button"
@@ -1098,7 +1105,7 @@ export default function App() {
                   className="w-full px-3.5 py-2 text-left text-xs hover:opacity-75 flex items-center gap-2 border-b border-current/10"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Download PDF (.pdf)</span>
+                  <span>PDF (.pdf)</span>
                 </button>
                 <button
                   type="button"

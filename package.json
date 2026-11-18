@@ -12,6 +12,7 @@
     "check:fences": "node scripts/check-md-fences.mjs"
   },
   "dependencies": {
+    "html2pdf.js": "^0.10.3",
     "lucide-react": "^1.75.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

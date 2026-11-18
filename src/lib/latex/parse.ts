@@ -319,6 +319,23 @@ function parseLatexToAst(input) {
         continue;
       }
 
+      // Em-spaces — don't rely on canvas measuring "  " (often near-zero)
+      if (cmd === "quad") {
+        nodes.push({ type: "space", width: 1 });
+        i = j;
+        continue;
+      }
+      if (cmd === "qquad") {
+        nodes.push({ type: "space", width: 2 });
+        i = j;
+        continue;
+      }
+      if (cmd === "enspace") {
+        nodes.push({ type: "space", width: 0.5 });
+        i = j;
+        continue;
+      }
+
       if (LATEX_SYMBOLS[cmd]) {
         const symNode = { type: "symbol", value: LATEX_SYMBOLS[cmd] };
         const res = parseSubSup(symNode, j);
