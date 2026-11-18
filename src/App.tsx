@@ -384,8 +384,13 @@ export default function App() {
       .join("\n\n");
   }, [isFreeFormMode, editorDraft, currentDoc?.sections, activeSection?.id]);
 
-  // Defer heavy parse so typing stays smooth; never flash a "loading" state.
-  const deferredPreviewMd = useDeferredValue(liveDocumentText);
+  // Live preview for normal docs. Only defer when the doc is huge so typing
+  // stays smooth — useDeferredValue otherwise waits until you pause typing.
+  const deferredHugePreview = useDeferredValue(liveDocumentText);
+  const previewMd =
+    (liveDocumentText?.length || 0) >= HUGE_EDITOR_CHARS
+      ? deferredHugePreview
+      : liveDocumentText;
 
   const lineCount = useMemo(() => {
     const t = liveEditorText || "";
@@ -1849,7 +1854,7 @@ export default function App() {
               </div>
               <div className="flex-1 overflow-y-auto p-3 sm:p-5 select-text">
                 <MarkdownPreview
-                  markdown={deferredPreviewMd}
+                  markdown={previewMd}
                   darkPreview={darkPreview}
                   fontPreset={activeFont}
                   resetKey={currentDoc?.id}
