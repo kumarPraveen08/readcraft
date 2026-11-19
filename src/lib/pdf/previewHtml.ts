@@ -385,7 +385,7 @@ ${fn}
 async function ensureKatex(onProgress) {
   if (typeof window === "undefined" || window.katex) return;
   onProgress?.(0.08, "Loading KaTeX…");
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     const existing = document.getElementById("katex-js");
     if (window.katex) {
       resolve();
@@ -429,6 +429,13 @@ export async function downloadPreviewPdf({
   filename,
   onProgress,
   signal,
+}: {
+  title?: string;
+  markdown?: string;
+  marginPt?: number;
+  filename?: string;
+  onProgress?: (p: number, msg: string) => void;
+  signal?: AbortSignal;
 } = {}) {
   onProgress?.(0.05, "Building preview HTML…");
   if (signal?.aborted) throw new DOMException("Aborted", "AbortError");

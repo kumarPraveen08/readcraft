@@ -3,6 +3,7 @@
 interface KatexOptions {
   displayMode?: boolean;
   throwOnError?: boolean;
+  strict?: boolean | string;
 }
 
 interface Window {
