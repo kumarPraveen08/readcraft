@@ -366,23 +366,7 @@ ${fn}
 </html>`;
 }
 
-/** HTML Word opens natively (.doc). Word can't render KaTeX CSS, so math becomes its TeX source. */
-export function buildWordHtmlDocument(opts) {
-  const doc = new DOMParser().parseFromString(
-    buildPreviewHtmlDocument(opts),
-    "text/html",
-  );
-  doc.querySelectorAll(".katex").forEach((k) => {
-    const tex = k.querySelector('annotation[encoding="application/x-tex"]');
-    const i = doc.createElement("i");
-    i.textContent = tex?.textContent || k.textContent;
-    k.replaceWith(i);
-  });
-  doc.querySelector('link[rel="stylesheet"]')?.remove();
-  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
-}
-
-async function ensureKatex(onProgress) {
+export async function ensureKatex(onProgress?: (p: number, msg: string) => void) {
   if (typeof window === "undefined" || window.katex) return;
   onProgress?.(0.08, "Loading KaTeX…");
   await new Promise<void>((resolve) => {

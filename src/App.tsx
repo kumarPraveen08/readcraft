@@ -48,7 +48,6 @@ import { EditorFindBar } from "./components/EditorFindBar";
 import {
   buildPreviewHtmlDocument,
   downloadPreviewPdf,
-  buildWordHtmlDocument,
 } from "./lib/pdf/previewHtml";
 import { safeLocalStorageSet } from "./lib/perf";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
@@ -906,19 +905,21 @@ export default function App() {
         `${baseName}.html`,
         new Blob([html], { type: "text/html;charset=utf-8" }),
       );
-    } else if (fmt === "doc") {
-      downloadBlob(
-        `${baseName}.doc`,
-        new Blob(
-          [
-            buildWordHtmlDocument({
-              title: currentDoc?.title || "README",
-              markdown: md,
-            }),
-          ],
-          { type: "application/msword;charset=utf-8" },
-        ),
-      );
+    } else if (fmt === "docx") {
+      try {
+        const { generateDocx } = await import("./lib/docx/generateDocx");
+        downloadBlob(
+          `${baseName}.docx`,
+          await generateDocx({
+            title: currentDoc?.title || "README",
+            markdown: md,
+            marginPt: pdfMarginPt,
+          }),
+        );
+      } catch (err) {
+        showToast("Word export failed");
+        console.error(err);
+      }
     } else if (fmt === "txt") {
       downloadBlob(
         `${baseName}.txt`,
@@ -1125,11 +1126,11 @@ export default function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDownload("doc")}
+                  onClick={() => handleDownload("docx")}
                   className="w-full px-3.5 py-2 text-left text-xs hover:opacity-75 flex items-center gap-2 border-b border-current/10"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Word (.doc)</span>
+                  <span>Word (.docx)</span>
                 </button>
                 <button
                   type="button"
