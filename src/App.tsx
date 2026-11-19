@@ -48,6 +48,7 @@ import { EditorFindBar } from "./components/EditorFindBar";
 import {
   buildPreviewHtmlDocument,
   downloadPreviewPdf,
+  buildWordHtmlDocument,
 } from "./lib/pdf/previewHtml";
 import { safeLocalStorageSet } from "./lib/perf";
 import { useDebouncedValue } from "./hooks/useDebouncedValue";
@@ -881,7 +882,8 @@ export default function App() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Revoking immediately can abort large downloads in some browsers.
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
     setExportMenuOpen(false);
     showToast(`Downloaded ${name}`);
   };
@@ -904,10 +906,24 @@ export default function App() {
         `${baseName}.html`,
         new Blob([html], { type: "text/html;charset=utf-8" }),
       );
+    } else if (fmt === "doc") {
+      downloadBlob(
+        `${baseName}.doc`,
+        new Blob(
+          [
+            buildWordHtmlDocument({
+              title: currentDoc?.title || "README",
+              markdown: md,
+            }),
+          ],
+          { type: "application/msword;charset=utf-8" },
+        ),
+      );
     } else if (fmt === "txt") {
       downloadBlob(
         `${baseName}.txt`,
-        new Blob([md.replace(/[#*`>]/g, "")], {
+        // Only strip markup markers; the old global [#*`>] strip corrupted code and math.
+        new Blob([md.replace(/^(#{1,6}\s+|>\s?)/gm, "").replace(/\*\*|__|`/g, "")], {
           type: "text/plain;charset=utf-8",
         }),
       );
@@ -1106,6 +1122,14 @@ export default function App() {
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>PDF (.pdf)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownload("doc")}
+                  className="w-full px-3.5 py-2 text-left text-xs hover:opacity-75 flex items-center gap-2 border-b border-current/10"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Word (.doc)</span>
                 </button>
                 <button
                   type="button"

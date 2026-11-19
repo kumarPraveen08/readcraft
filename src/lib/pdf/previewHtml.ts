@@ -128,24 +128,16 @@ function blockToHtml(b, refLinks) {
     case "code":
       return `<pre><code>${esc(b.content || "")}</code></pre>`;
     case "table": {
-      // Div rows — html2canvas sinks text to the bottom of real <td> cells
-      const cols = Math.max(
-        1,
-        (b.headers || []).length,
-        ...(b.rows || []).map((r) => r.length),
-      );
-      const cell = (html, head = false) =>
-        `<div class="md-td${head ? " md-th" : ""}" style="flex:1 1 0;max-width:${(100 / cols).toFixed(4)}%">${html}</div>`;
-      const head = `<div class="md-tr md-tr-head">${(b.headers || [])
-        .map((h) => cell(inlineToHtml(h, refLinks), true))
-        .join("")}</div>`;
+      const head = `<tr>${(b.headers || [])
+        .map((h) => `<th>${inlineToHtml(h, refLinks)}</th>`)
+        .join("")}</tr>`;
       const body = (b.rows || [])
         .map(
           (r) =>
-            `<div class="md-tr">${r.map((c) => cell(inlineToHtml(c, refLinks))).join("")}</div>`,
+            `<tr>${r.map((c) => `<td>${inlineToHtml(c, refLinks)}</td>`).join("")}</tr>`,
         )
         .join("");
-      return `<div class="md-table" role="table">${head}${body}</div>`;
+      return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
     }
     case "details":
       return `<details open><summary>${inlineToHtml(b.summary, refLinks)}</summary><p>${inlineToHtml(b.body, refLinks)}</p></details>`;
@@ -231,30 +223,22 @@ const PRINT_CSS = `
   ul, ol { margin: 0.5em 0; padding-left: 1.6em; }
   li { margin: 0.25em 0; }
   li.indent { margin-left: 1.2em; }
-  /* Div-based tables (real <table> text sinks to cell bottom in html2canvas) */
-  .md-table {
+  table {
     width: 100%;
+    border-collapse: collapse;
     margin: 0.75em 0;
     font-size: 0.92em;
-    border-top: 1px solid #d0d7de;
-    border-left: 1px solid #d0d7de;
   }
-  .md-tr {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-  }
-  .md-td {
-    padding: 8px 10px;
-    border-right: 1px solid #d0d7de;
-    border-bottom: 1px solid #d0d7de;
-    line-height: 1.4;
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 6px 10px;
+    vertical-align: top;
     word-break: break-word;
-    text-align: left;
   }
-  .md-th {
+  th {
     background: #f6f8fa;
     font-weight: 600;
+    text-align: left;
   }
   .badge-img { height: 20px; vertical-align: middle; margin: 2px 3px; }
   .badge-link { text-decoration: none; }
@@ -382,6 +366,22 @@ ${fn}
 </html>`;
 }
 
+/** HTML Word opens natively (.doc). Word can't render KaTeX CSS, so math becomes its TeX source. */
+export function buildWordHtmlDocument(opts) {
+  const doc = new DOMParser().parseFromString(
+    buildPreviewHtmlDocument(opts),
+    "text/html",
+  );
+  doc.querySelectorAll(".katex").forEach((k) => {
+    const tex = k.querySelector('annotation[encoding="application/x-tex"]');
+    const i = doc.createElement("i");
+    i.textContent = tex?.textContent || k.textContent;
+    k.replaceWith(i);
+  });
+  doc.querySelector('link[rel="stylesheet"]')?.remove();
+  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
+}
+
 async function ensureKatex(onProgress) {
   if (typeof window === "undefined" || window.katex) return;
   onProgress?.(0.08, "Loading KaTeX…");
@@ -502,15 +502,19 @@ export async function downloadPreviewPdf({
     'body > div[style*="visibility: hidden"] img{display:inline !important;vertical-align:baseline !important;}';
   document.head.appendChild(probeFix);
 
+  // Browsers cap canvas height (~32k px); shrink scale for long documents so
+  // pages don't come out blank.
+  const scale = Math.min(2, 30000 / Math.max(1, el.scrollHeight));
+
   try {
     const blob = await html2pdf()
       .set({
         margin: marginIn,
         filename: safeName,
         pagebreak: { mode: ["css", "legacy"] },
-        image: { type: "jpeg", quality: 0.96 },
+        image: { type: "jpeg", quality: 0.92 },
         html2canvas: {
-          scale: 2,
+          scale,
           useCORS: true,
           allowTaint: false,
           logging: false,
